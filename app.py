@@ -20,7 +20,8 @@ mau_quytrinh = {
             "Đăng tin và tiếp nhận hồ sơ",
             "Sàng lọc và phỏng vấn",
             "Thông báo kết quả và thử việc"
-        ]
+        ],
+        "can_cu_phap_ly": "Bộ luật Lao động, Quy chế nhân sự công ty."
     },
     "Quy trình mua sắm thiết bị": {
         "muc_tieu": "Đảm bảo việc mua sắm đúng quy định, minh bạch.",
@@ -32,26 +33,24 @@ mau_quytrinh = {
             "Lựa chọn nhà cung cấp",
             "Ký hợp đồng và nhận hàng",
             "Nghiệm thu và thanh toán"
-        ]
+        ],
+        "can_cu_phap_ly": "Luật Đấu thầu, Quy định mua sắm nội bộ."
     }
 }
 
 # Chọn mẫu có sẵn
-mau_chon = st.selectbox("Chọn mẫu quy trình có sẵn (tùy chọn)", ["-- Tạo mới --"] + list(mau_quytrinh.keys()))
+mau_chon = st.selectbox("📂 Chọn mẫu quy trình có sẵn (tùy chọn)", ["-- Tạo mới --"] + list(mau_quytrinh.keys()))
 
-# Hiển thị mẫu tham khảo nếu có chọn
+# Hiển thị tham khảo mẫu (nếu có chọn)
 if mau_chon != "-- Tạo mới --":
-    st.markdown("### 📌 Tham khảo mẫu quy trình")
-    mau = mau_quytrinh[mau_chon]
-    st.info(f"""
-**Mục tiêu:** {mau['muc_tieu']}
-
-**Phạm vi:** {mau['pham_vi']}
-
-**Đối tượng:** {mau['doi_tuong']}
-
-**Các bước:**  
-""" + "\n".join([f"- {b}" for b in mau['buoc_thuc_hien']]))
+    with st.expander("👁️ Xem nội dung mẫu tham khảo"):
+        st.markdown(f"**Mục tiêu:** {mau_quytrinh[mau_chon]['muc_tieu']}")
+        st.markdown(f"**Phạm vi:** {mau_quytrinh[mau_chon]['pham_vi']}")
+        st.markdown(f"**Đối tượng:** {mau_quytrinh[mau_chon]['doi_tuong']}")
+        st.markdown("**Các bước thực hiện:**")
+        for idx, b in enumerate(mau_quytrinh[mau_chon]["buoc_thuc_hien"], 1):
+            st.markdown(f"- Bước {idx}: {b}")
+        st.markdown(f"**Căn cứ pháp lý:** {mau_quytrinh[mau_chon].get('can_cu_phap_ly', '')}")
 
 with st.form("form"):
     ten_quytrinh = st.text_input("Tên quy trình / quy chế", value=mau_chon if mau_chon != "-- Tạo mới --" else "")
@@ -63,7 +62,8 @@ with st.form("form"):
     doi_tuong = st.text_area("Đối tượng thực hiện", value=mau_quytrinh.get(mau_chon, {}).get("doi_tuong", ""))
     buoc_thuc_hien = st.text_area("Các bước thực hiện (mỗi bước 1 dòng)",
                                   value="\n".join(mau_quytrinh.get(mau_chon, {}).get("buoc_thuc_hien", [])))
-    can_cu_phap_ly = st.text_area("Căn cứ pháp lý / quy định liên quan")
+    can_cu_phap_ly = st.text_area("Căn cứ pháp lý / quy định liên quan",
+                                  value=mau_quytrinh.get(mau_chon, {}).get("can_cu_phap_ly", ""))
 
     submitted = st.form_submit_button("Tạo quy trình")
 
@@ -71,11 +71,11 @@ if submitted:
     doc = Document()
     doc.add_heading(ten_quytrinh, 0)
     doc.add_paragraph(f"Mã tài liệu: {ma_tai_lieu}")
-    doc.add_paragraph(f"**Lĩnh vực:** {linh_vuc}")
-    doc.add_paragraph(f"**Mục tiêu:**\n{muc_tieu}")
-    doc.add_paragraph(f"**Phạm vi áp dụng:**\n{pham_vi}")
-    doc.add_paragraph(f"**Đối tượng thực hiện:**\n{doi_tuong}")
-    doc.add_paragraph(f"**Căn cứ pháp lý:**\n{can_cu_phap_ly}")
+    doc.add_paragraph(f"Lĩnh vực: {linh_vuc}")
+    doc.add_paragraph(f"Mục tiêu:\n{muc_tieu}")
+    doc.add_paragraph(f"Phạm vi áp dụng:\n{pham_vi}")
+    doc.add_paragraph(f"Đối tượng thực hiện:\n{doi_tuong}")
+    doc.add_paragraph(f"Căn cứ pháp lý:\n{can_cu_phap_ly}")
 
     doc.add_heading("Các bước thực hiện", level=1)
     steps = buoc_thuc_hien.strip().split("\n")
